@@ -13,11 +13,11 @@ import { v2 as cloudinary } from 'cloudinary';
     const uploadFileFromCloudinary =async (localFilePath){
        try {
         if(!localFilePath)return null
-        const responce = await cloudinary.uploader.upload(localFilePath,{
+        const response = await cloudinary.uploader.upload(localFilePath,{
             resource_type: "auto"
         })
         console.log("Sucessfully uploaded on cloudnary ",
-            response.url);
+            response.url); 
             return response
         
        } catch (error) {

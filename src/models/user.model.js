@@ -67,11 +67,8 @@ userSchema.methods.generateAccessToken = function(){
         email: tis.email,
         username: this.username ,
         fullName: this.FullName
-    },
-    process.env.ACCESS_TOKEN_SECRET,
-    { 
-        expiresIn: process.env.ACCESS_TOKEN_EXPIRY
-    }// format - add payload , Token key  
+    }
+    // format - add payload , Token key  
     )
 }
 
