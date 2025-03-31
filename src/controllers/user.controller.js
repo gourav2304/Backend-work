@@ -6,7 +6,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 
 const generateAccessTokenAndRefreshToken = async (userId) => {
   try {
-    const user = await User.findById(userId);
+    const user = await User.findById(userId); //user having specific instance that is unique userId
     const accessToken = user.generateAccessToken;
     const refreshToken = user.generateRefreshToken;
 
@@ -101,7 +101,7 @@ const loginUser = asyncHandler(async (req, res) => {
   });
 
   if (!user) {
-    throw new ApiError(400, "vuser does not exist ");
+    throw new ApiError(400, "user does not exist ");
   }
 
   const isPasswordValid = await user.isPasswordCorrect(password);
@@ -117,7 +117,7 @@ const loginUser = asyncHandler(async (req, res) => {
   );
 
   const options = {
-    httponly: true,
+    httpOnly: true,
     secure: true,
   };
 
@@ -138,4 +138,28 @@ const loginUser = asyncHandler(async (req, res) => {
       )
     );
 });
-export { registerUser };
+
+const logOutUser = asyncHandler(async (req, res) => {
+  User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: {
+        refreshToken: undefined,
+      },
+    },
+    {
+      new: true,
+    }
+  );
+
+  const options = {
+    httpOnly: true,
+    secure: true 
+  }
+
+  return res.status(200)
+  .clearCookies("acessToken", options)
+  .clearCookies("refreshToken", options)
+  .json(new ApiResponse(200, {}, "User logout sucessfully"))
+});
+export { registerUser, loginUser, logOutUser };

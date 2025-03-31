@@ -63,13 +63,13 @@ userSchema.method.isPasswordCorrect = async function(password){
 
 userSchema.methods.generateAccessToken = function(){
     jwt.sign(
-    {
-        _id: this_id,
-        email: tis.email,
-        username: this.username ,
-        fullName: this.FullName
-    }
-    // format - add payload , Token key  
+        {
+            _id: this._id,
+            email: this.email,
+            username: this.username ,
+            fullName: this.fullName
+        }
+        // format - add payload , Token key  
     )
 }
 
@@ -83,7 +83,7 @@ userSchema.methods.generateRefreshToken = function(){
         {
             expiresIn: process.env.ACCESS_TOKEN_EXPIRY
         }// format - add payload , Token key  
-        )
+    )
 }
 
 
