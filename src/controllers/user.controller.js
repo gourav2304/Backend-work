@@ -7,8 +7,11 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 const generateAccessTokenAndRefreshToken = async (userId) => {
   try {
     const user = await User.findById(userId); //user having specific instance that is unique userId
-    const accessToken = user.generateAccessToken;
-    const refreshToken = user.generateRefreshToken;
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+
+    // console.log("Access Token:", accessToken); // Debugging step
+    // console.log("Refresh Token:", refreshToken); // Debugging step
 
     user.refreshToken = refreshToken;
     await user.save({ validateBeforeSave: false });
