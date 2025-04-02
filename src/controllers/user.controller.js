@@ -189,7 +189,7 @@ const refreshAccessToken = asyncHandler(async(req,res)=>{
         secure: true
        }
     
-       const {accessToken, newRefreshToken} = await generateAccessTokenAndRefreshToken(user.id)
+       const {accessToken, newRefreshToken} = await generateAccessTokenAndRefreshToken(user._id)
     
        return res.status(200)
        .cookie("accessToken",accessToken,options)
@@ -205,5 +205,26 @@ const refreshAccessToken = asyncHandler(async(req,res)=>{
         throw new ApiError(401, error?.message ||  "invalid refresh token  ")
     }
 
+
+const changeCurrentPassword = asyncHandler(async(req,res)=>{
+    const {oldPassword, newPassword } = req.body // confirmPassword if used here use the validation given after this in comment form 
+
+    // if (!(confirmPassword== newPassword)) {
+    //   throw new ApiError(401, "confirm password not matched with new paasword")
+    // }
+
+
+    const user = await user.findById(req.user?._id)
+
+    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)// use await here because of ispassword is in async function 
+    })
+    if (!isPasswordCorrect) {
+      throw new ApiError(400, "Invalid old password")
+    }
+    user.password = newpassword ;
+    await user.save({validateBeforeSave: flase})
+
+    return res.status(200)
+    .json(new ApiResponse(200,{}, "Password changed sucessfully"))
 })
 export { registerUser, loginUser, logoutUser,refreshAccessToken };
