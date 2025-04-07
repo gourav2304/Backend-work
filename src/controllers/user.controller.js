@@ -309,7 +309,78 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, user, "CoverImage sucessfully updated"));
 });
+const getUserChannelProfile = asyncHandler(async (req, res) => {
 
+  const { username } = req.params
+
+  if (!username?.trim()) {
+    throw new (ApiError(400, "Username is not found"))
+  }
+
+  const channel =await User.aggregate([
+    {
+        $match: {
+          username: username?.toLowerCase()
+        }
+    },
+    {
+      $lookup: 
+      {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "channel",   // added pipeline for finding subscriber throw channel
+        as: "subscribers"
+    }
+        
+    },
+    {
+      $lookup: 
+      {
+        from: "subscriptions",
+        localField: "_id",  //  added pipeline for finding subscriber whom they subscribe
+        foreignField: "subcriber",
+        as: "subscribedTo"
+      }
+    },
+    {
+      $addFields: {
+        subscribersCount: {
+            $size: "$subscribers"
+        },
+        channelsSubscribedToCount: {
+            $size: "$subscribedTo"
+        },
+        isSubscribed: {
+            $cond: {
+                if: {$in: [req.user?._id, "$subscribers.subscriber"]},
+                then: true,
+                else: false
+            }
+        }
+      }
+    },
+    {
+      $project: {
+          fullName: 1,
+          username: 1,
+          subscribersCount: 1,
+          channelsSubscribedToCount: 1,
+          isSubscribed: 1,
+          avatar: 1,
+          coverImage: 1,
+          email: 1
+
+      }
+    }
+  ])
+
+  if (!channel?.length) {
+    throw new ApiError(400, "channel is not found")
+  }
+
+  return res.status(200)
+  .json( new ApiResponse , channel[0], " user channel fetched sucessfully ")
+})
 export {
   registerUser,
   loginUser,
@@ -319,5 +390,6 @@ export {
   getCurrentUser,
   updateAccountDetail,
   updateUserAvatar,
-  updateUserCoverImage
+  updateUserCoverImage,
+  getUserChannelProfile
 };
